@@ -2,7 +2,7 @@
   "name": "health-app",
   "license": "0BSD",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
@@ -10,17 +10,31 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@expo/vector-icons": "^14.1.0",
+    "@react-native-async-storage/async-storage": "^2.2.0",
+    "@react-navigation/bottom-tabs": "^7.4.0",
+    "@react-navigation/native": "^7.1.14",
     "@supabase/supabase-js": "^2.50.0",
+    "base64-arraybuffer": "^1.0.2",
+    "date-fns": "^4.1.0",
     "expo": "~53.0.12",
+    "expo-image-picker": "^16.1.4",
     "expo-status-bar": "~2.2.3",
     "react": "19.0.0",
-    "react-native": "0.79.4"
+    "react-native": "0.79.4",
+    "react-native-calendars": "^1.1312.1",
+    "react-native-get-random-values": "^1.11.0",
+    "react-native-safe-area-context": "^5.5.0",
+    "react-native-screens": "^4.11.1",
+    "react-native-url-polyfill": "^2.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
     "@babel/preset-typescript": "^7.27.1",
     "@types/react": "^19.1.8",
     "@types/react-native": "^0.72.8",
+    "@types/react-native-calendars": "^1.1264.7",
+    "@types/uuid": "^10.0.0",
     "typescript": "^5.8.3"
   },
   "private": true

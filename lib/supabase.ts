@@ -1,11 +1,24 @@
+import 'react-native-url-polyfill/auto';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { SUPABASE_CONFIG, validateConfig } from '../config/supabase'
 
 // 설정 유효성 검사
 validateConfig()
 
-// Supabase 클라이언트 생성
-export const supabase: SupabaseClient = createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey)
+// Supabase 클라이언트 생성 (React Native용 설정)
+export const supabase: SupabaseClient = createClient(
+  SUPABASE_CONFIG.url, 
+  SUPABASE_CONFIG.anonKey,
+  {
+    auth: {
+      storage: AsyncStorage,
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: false,
+    },
+  }
+)
 
 // 데이터베이스 작업을 위한 타입 정의
 export interface DatabaseOptions {
