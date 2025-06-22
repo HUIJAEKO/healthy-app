@@ -11,10 +11,21 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from './AuthContext';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { supabase } from '../lib/supabase';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+
+type MainTabParamList = {
+  홈: undefined;
+  기록: { tab?: 'meal' | 'workout' };
+  Activity: undefined;
+  Friends: undefined;
+  Messages: undefined;
+};
+
+type DashboardNavigationProp = BottomTabNavigationProp<MainTabParamList, '홈'>;
 
 // Reusable component for progress bars
 const NutrientProgress = ({
@@ -60,6 +71,7 @@ const stringToColor = (str: string) => {
 
 export const Dashboard: React.FC = () => {
   const { user, userProfile, signOut } = useAuth(); // Get userProfile and signOut from context
+  const navigation = useNavigation<DashboardNavigationProp>();
   const [loading, setLoading] = useState(true);
   const [nutrition, setNutrition] = useState({
     calories: 0,
@@ -76,6 +88,14 @@ export const Dashboard: React.FC = () => {
     carbohydrates: 250,
     protein: 120,
     fat: 30,
+  };
+
+  const handleMealPress = () => {
+    navigation.navigate('기록', { tab: 'meal' });
+  };
+
+  const handleWorkoutPress = () => {
+    navigation.navigate('기록', { tab: 'workout' });
   };
 
   const fetchDashboardData = useCallback(async () => {
@@ -320,11 +340,17 @@ export const Dashboard: React.FC = () => {
 
         {/* Action Buttons */}
         <View style={styles.actionButtonsContainer}>
-          <TouchableOpacity style={[styles.actionButton, styles.mealButton]}>
+          <TouchableOpacity 
+            style={[styles.actionButton, styles.mealButton]}
+            onPress={handleMealPress}
+          >
             <Ionicons name="nutrition" size={24} color="white" />
             <Text style={styles.actionButtonText}>식단 입력</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.actionButton, styles.workoutButton]}>
+          <TouchableOpacity 
+            style={[styles.actionButton, styles.workoutButton]}
+            onPress={handleWorkoutPress}
+          >
             <Ionicons name="barbell" size={24} color="white" />
             <Text style={styles.actionButtonText}>운동 입력</Text>
           </TouchableOpacity>

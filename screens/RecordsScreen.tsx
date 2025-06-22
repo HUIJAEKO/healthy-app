@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -20,11 +20,13 @@ import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
 import { useAuth } from '../components/AuthContext';
 import { supabase } from '../lib/supabase';
+import { useRoute } from '@react-navigation/native';
 
 type MealTime = 'breakfast' | 'lunch' | 'dinner' | 'snack';
 
 const RecordsScreen = () => {
   const { user } = useAuth();
+  const route = useRoute();
   const [activeTab, setActiveTab] = useState<'meal' | 'workout'>('meal');
   const [selectedMealTime, setSelectedMealTime] = useState<MealTime>('breakfast');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,6 +47,14 @@ const RecordsScreen = () => {
   const [weight, setWeight] = useState('');
   const [speed, setSpeed] = useState('');
   const [duration, setDuration] = useState('');
+
+  // route.params가 변경될 때마다 activeTab 업데이트
+  useEffect(() => {
+    const params = route.params as { tab?: 'meal' | 'workout' };
+    if (params?.tab) {
+      setActiveTab(params.tab);
+    }
+  }, [route.params]);
 
   const handlePickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
