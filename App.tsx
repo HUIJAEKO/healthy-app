@@ -3,7 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { AuthProvider, useAuth } from './components/AuthContext';
-import { AuthScreen } from './screens/AuthScreen';
+import AuthScreen from './screens/AuthScreen';
 import MainTabNavigator from './navigation/MainTabNavigator';
 
 const AppContent: React.FC = () => {

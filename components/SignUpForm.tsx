@@ -8,10 +8,11 @@ import {
   Alert,
   ActivityIndicator,
   Image,
-  ScrollView,
 } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from './AuthContext';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import * as ImagePicker from 'expo-image-picker';
 
 interface SignUpFormProps {
   onSwitchToLogin: () => void;
@@ -23,9 +24,10 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitchToLogin }) => {
   const [nickname, setNickname] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   
   const [isLoading, setIsLoading] = useState(false);
-  const [isCheckingNickname, setIsCheckingNickname] = useState(false);
   
   const { signUp, checkNicknameExists } = useAuth();
 
@@ -46,24 +48,9 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitchToLogin }) => {
     }
   };
 
-  const handleCheckNickname = async () => {
-    if (!nickname.trim()) {
-      Alert.alert('오류', '닉네임을 입력해주세요.');
-      return;
-    }
-    setIsCheckingNickname(true);
-    const exists = await checkNicknameExists(nickname);
-    setIsCheckingNickname(false);
-    if (exists) {
-      Alert.alert('중복', '이미 사용 중인 닉네임입니다.');
-    } else {
-      Alert.alert('성공', '사용 가능한 닉네임입니다.');
-    }
-  };
-
   const handleSignUp = async () => {
     if (!email || !password || !confirmPassword || !nickname) {
-      Alert.alert('오류', '프로필 사진을 제외한 모든 필드를 입력해주세요.');
+      Alert.alert('오류', '모든 필드를 입력해주세요.');
       return;
     }
     if (password !== confirmPassword) {
@@ -76,6 +63,13 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitchToLogin }) => {
     }
 
     setIsLoading(true);
+    const nicknameExists = await checkNicknameExists(nickname);
+    if (nicknameExists) {
+      Alert.alert('오류', '이미 사용 중인 닉네임입니다.');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const avatarFile = profileImage ? {
         uri: profileImage.uri,
@@ -99,7 +93,9 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitchToLogin }) => {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
+      <Text style={styles.formTitle}>회원가입</Text>
+      
       <View style={styles.avatarContainer}>
         <TouchableOpacity onPress={pickImage}>
           <Image
@@ -111,26 +107,47 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitchToLogin }) => {
       </View>
 
       <View style={styles.inputContainer}>
-        <TextInput style={styles.input} placeholder="이메일 주소" placeholderTextColor="#94a3b8" value={email} onChangeText={setEmail} keyboardType="email-address" textContentType="emailAddress" autoCapitalize="none"/>
+        <Text style={styles.label}>이메일</Text>
+        <TextInput style={styles.input} placeholder="example@email.com" placeholderTextColor="#cbd5e1" value={email} onChangeText={setEmail} keyboardType="email-address" textContentType="none" autoCapitalize="none" autoComplete="off" />
       </View>
 
-      <View style={styles.inputGroup}>
-        <TextInput style={[styles.input, styles.inputFlex]} placeholder="닉네임" placeholderTextColor="#94a3b8" value={nickname} onChangeText={setNickname} autoCapitalize="none"/>
-        <TouchableOpacity style={styles.checkButton} onPress={handleCheckNickname} disabled={isCheckingNickname}>
-          {isCheckingNickname ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.checkButtonText}>중복확인</Text>}
-        </TouchableOpacity>
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>닉네임</Text>
+        <TextInput style={styles.input} placeholder="사용할 닉네임을 입력하세요" placeholderTextColor="#cbd5e1" value={nickname} onChangeText={setNickname} autoCapitalize="none" textContentType="none" autoComplete="off" />
       </View>
       
       <View style={styles.inputContainer}>
-        <TextInput style={styles.input} placeholder="비밀번호" placeholderTextColor="#94a3b8" value={password} onChangeText={setPassword} secureTextEntry textContentType="newPassword"/>
+        <Text style={styles.label}>비밀번호</Text>
+        <View style={styles.passwordInputWrapper}>
+            <TextInput style={styles.input} placeholder="6자 이상의 비밀번호" placeholderTextColor="#cbd5e1" value={password} onChangeText={setPassword} secureTextEntry={!passwordVisible} textContentType="none" autoComplete="off" />
+            <TouchableOpacity onPress={() => setPasswordVisible(!passwordVisible)} style={styles.eyeIcon}>
+                <Ionicons name={passwordVisible ? "eye-off" : "eye"} size={22} color="#94a3b8" />
+            </TouchableOpacity>
+        </View>
       </View>
       
       <View style={styles.inputContainer}>
-        <TextInput style={styles.input} placeholder="비밀번호 확인" placeholderTextColor="#94a3b8" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry textContentType="newPassword"/>
+        <Text style={styles.label}>비밀번호 확인</Text>
+        <View style={styles.passwordInputWrapper}>
+            <TextInput style={styles.input} placeholder="비밀번호를 다시 입력하세요" placeholderTextColor="#cbd5e1" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry={!confirmPasswordVisible} textContentType="none" autoComplete="off" />
+            <TouchableOpacity onPress={() => setConfirmPasswordVisible(!confirmPasswordVisible)} style={styles.eyeIcon}>
+                <Ionicons name={confirmPasswordVisible ? "eye-off" : "eye"} size={22} color="#94a3b8" />
+            </TouchableOpacity>
+        </View>
       </View>
       
-      <TouchableOpacity style={[styles.button, isLoading && styles.buttonDisabled]} onPress={handleSignUp} disabled={isLoading}>
-        {isLoading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>가입하기</Text>}
+      <TouchableOpacity onPress={handleSignUp} disabled={isLoading} style={styles.buttonContainer}>
+        <LinearGradient
+            colors={['#34d399', '#2563eb']}
+            start={{ x: 0, y: 0.5 }}
+            end={{ x: 1, y: 0.5 }}
+            style={styles.button}
+        >
+            {isLoading 
+                ? <ActivityIndicator color="#fff" /> 
+                : <Text style={styles.buttonText}>회원가입</Text>
+            }
+        </LinearGradient>
       </TouchableOpacity>
 
       <View style={styles.switchContainer}>
@@ -139,25 +156,110 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitchToLogin }) => {
           <Text style={[styles.switchText, styles.switchLink]}>로그인</Text>
         </TouchableOpacity>
       </View>
-    </ScrollView>
+
+      <Text style={styles.footerText}>
+        회원가입 시 이용약관과 개인정보처리방침에 동의하게 됩니다.
+      </Text>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { width: '100%' },
-  avatarContainer: { alignItems: 'center', marginBottom: 24 },
-  avatar: { width: 100, height: 100, borderRadius: 50, backgroundColor: '#e2e8f0', borderWidth: 2, borderColor: '#fff' },
-  avatarText: { color: '#3b82f6', marginTop: 8, fontWeight: 'bold' },
-  inputContainer: { marginBottom: 16 },
-  inputGroup: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
-  input: { backgroundColor: '#fff', paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, fontSize: 16, color: '#1e293b', borderWidth: 1, borderColor: '#e2e8f0' },
-  inputFlex: { flex: 1, marginRight: 8 },
-  checkButton: { backgroundColor: '#64748b', paddingHorizontal: 12, paddingVertical: 14, borderRadius: 12, justifyContent: 'center' },
-  checkButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
-  button: { backgroundColor: '#10b981', paddingVertical: 16, borderRadius: 12, alignItems: 'center', marginTop: 8 },
-  buttonDisabled: { backgroundColor: '#94a3b8' },
-  buttonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-  switchContainer: { flexDirection: 'row', justifyContent: 'center', marginTop: 24, paddingBottom: 20 },
-  switchText: { fontSize: 14, color: '#64748b' },
-  switchLink: { fontWeight: 'bold', color: '#10b981' },
+    container: { 
+        width: '100%',
+    },
+    formTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#1e293b',
+        textAlign: 'center',
+        marginBottom: 24,
+    },
+    avatarContainer: { 
+      alignItems: 'center', 
+      marginBottom: 24 
+    },
+    avatar: { 
+        width: 100, 
+        height: 100, 
+        borderRadius: 50, 
+        backgroundColor: '#e2e8f0' 
+    },
+    avatarText: { 
+        color: '#3b82f6', 
+        marginTop: 8, 
+        fontWeight: 'bold',
+        textAlign: 'center'
+    },
+    inputContainer: { 
+        marginBottom: 16 
+    },
+    label: {
+        fontSize: 14,
+        fontWeight: '500',
+        color: '#334155',
+        marginBottom: 8,
+    },
+    input: { 
+        backgroundColor: '#f8fafc', 
+        paddingVertical: 10, 
+        paddingHorizontal: 16, 
+        borderRadius: 8, 
+        fontSize: 16, 
+        color: '#1e293b', 
+        borderWidth: 1, 
+        borderColor: '#e2e8f0',
+        flex: 1,
+    },
+    passwordInputWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#f8fafc',
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#e2e8f0',
+    },
+    eyeIcon: {
+        position: 'absolute',
+        right: 16,
+    },
+    buttonContainer: {
+        marginTop: 8,
+        borderRadius: 12,
+        shadowColor: '#10b981',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
+        elevation: 5,
+    },
+    button: {
+        paddingVertical: 14, 
+        borderRadius: 12, 
+        alignItems: 'center', 
+    },
+    buttonText: { 
+        color: '#fff', 
+        fontSize: 16, 
+        fontWeight: 'bold' 
+    },
+    switchContainer: { 
+        flexDirection: 'row', 
+        justifyContent: 'center', 
+        marginTop: 24, 
+    },
+    switchText: { 
+        fontSize: 14, 
+        color: '#64748b' 
+    },
+    switchLink: { 
+        fontWeight: 'bold', 
+        color: '#2563eb' 
+    },
+    footerText: {
+        fontSize: 11,
+        color: '#94a3b8',
+        textAlign: 'center',
+        marginTop: 24,
+        paddingHorizontal: 16,
+    }
 }); 

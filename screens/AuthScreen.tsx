@@ -1,88 +1,88 @@
 import React, { useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  SafeAreaView,
-  Text,
-  KeyboardAvoidingView,
-  Platform,
-  Image,
-  ScrollView,
-} from 'react-native';
+import { View, StyleSheet, Text, Image, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { LoginForm } from '../components/LoginForm';
 import { SignUpForm } from '../components/SignUpForm';
 
-export const AuthScreen: React.FC = () => {
-  const [isLogin, setIsLogin] = useState(true);
-
-  const switchToSignUp = () => setIsLogin(false);
-  const switchToLogin = () => setIsLogin(true);
+const AuthScreen = () => {
+  const [showLogin, setShowLogin] = useState(true);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView
-        style={styles.keyboardAvoidingView}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        <ScrollView contentContainerStyle={styles.scrollView}>
-          <View style={styles.header}>
-            <Image
-              source={require('../assets/icon.png')}
-              style={styles.logo}
-            />
-            <Text style={styles.appName}>Health Companion</Text>
-            <Text style={styles.tagline}>당신의 건강한 삶을 위한 파트너</Text>
-          </View>
-
-          <View style={styles.formContainer}>
-            {isLogin ? (
-              <LoginForm onSwitchToSignUp={switchToSignUp} />
-            ) : (
-              <SignUpForm onSwitchToLogin={switchToLogin} />
-            )}
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+    <LinearGradient
+      colors={['#f0f9ff', '#e0f2fe', '#f0f9ff']}
+      style={styles.container}
+    >
+        <KeyboardAvoidingView 
+            style={{flex: 1, width: '100%'}}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            keyboardVerticalOffset={Platform.OS === "ios" ? 0 : -100}
+        >
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
+                {showLogin && (
+                    <View style={styles.header}>
+                        <Image source={require('../assets/icon.png')} style={styles.logo} />
+                        <Text style={styles.title}>FitTogether</Text>
+                        <Text style={styles.subtitle}>새로운 건강 여정을 시작해보세요</Text>
+                    </View>
+                )}
+                
+                <View style={styles.formContainer}>
+                    {showLogin ? (
+                        <LoginForm onSwitchToSignUp={() => setShowLogin(false)} />
+                    ) : (
+                        <SignUpForm onSwitchToLogin={() => setShowLogin(true)} />
+                    )}
+                </View>
+            </ScrollView>
+        </KeyboardAvoidingView>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0f4f8', // 밝고 깨끗한 배경색
   },
-  keyboardAvoidingView: {
-    flex: 1,
-  },
-  scrollView: {
+  scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
   },
   header: {
     alignItems: 'center',
-    paddingHorizontal: 40,
-    paddingBottom: 40,
-    paddingTop: 20,
+    marginBottom: 30,
   },
   logo: {
     width: 80,
     height: 80,
-    marginBottom: 20,
-    borderRadius: 16,
+    borderRadius: 40,
+    marginBottom: 16,
   },
-  appName: {
-    fontSize: 28,
+  title: {
+    fontSize: 32,
     fontWeight: 'bold',
-    color: '#1e293b', // 어두운 슬레이트 색상
+    color: '#0f172a',
   },
-  tagline: {
+  subtitle: {
     fontSize: 16,
-    color: '#64748b', // 밝은 슬레이트 색상
-    marginTop: 8,
+    color: '#475569',
+    marginTop: 4,
   },
   formContainer: {
-    paddingHorizontal: 24,
-    paddingBottom: 20,
+    width: '100%',
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 24,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
   },
-}); 
+});
+
+export default AuthScreen;
